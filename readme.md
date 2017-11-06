@@ -18,12 +18,6 @@ Scrape gumtree looking for wardrobes in Brighton and Hove. Send daily reports fo
 
 ## To Do
 
-- add spider for pulling that loads search page
-    + Should follow all links to detail pages when age is less than 24 hours and title contains 'wardrobe'
-
-- Return items from spider
-- Create pipeline that saves new items into the database
-
 - Add airflow that
     + runs scrapy
         * set `dag.catchup = False`
