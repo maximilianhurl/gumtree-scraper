@@ -1,7 +1,6 @@
 from scrapy.exceptions import DropItem
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from project.models import Advert
+from project.settings import create_sqlalchemy_engine
 import scrapy
 
 
@@ -18,8 +17,7 @@ class AdvertItem(scrapy.Item):
 class AdvertPipeline(object):
 
     def open_spider(self, spider):
-        engine = create_engine('sqlite:///listings.db')
-        Session = sessionmaker(bind=engine)
+        engine, Session = create_sqlalchemy_engine()
         self.session = Session()
 
     def close_spider(self, spider):

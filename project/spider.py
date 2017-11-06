@@ -1,16 +1,10 @@
 from datetime import datetime, timedelta
 from project.pipelines import AdvertItem
+from project.settings import BASE_URL, SEARCH_KEYWORDS, SEARCH_URLS, USER_AGENT
 from typing import Optional
 import scrapy
 import logging
 import re
-
-
-SEARCH_KEYWORDS = [
-    'wardrobe',
-    'warbrobe',
-    'wardrob'
-]
 
 
 def dehumanise_date(date: str) -> Optional[datetime]:
@@ -50,11 +44,7 @@ def remove_whitespace(string: str) -> str:
 class GumtreeSearchSpider(scrapy.Spider):
     name = "gumtree_search_spider"
 
-    BASE_URL = 'https://www.gumtree.com'
-    start_urls = [
-        f'{BASE_URL}/search?search_category=beds-bedroom-furniture&search_location=brighton&search_scope=true',
-        f'{BASE_URL}/search?search_category=beds-bedroom-furniture&search_location=hove&search_scope=true',
-    ]
+    start_urls = SEARCH_URLS
 
     custom_settings = {
         'CONCURRENT_REQUESTS': 1,
@@ -62,31 +52,32 @@ class GumtreeSearchSpider(scrapy.Spider):
         'ITEM_PIPELINES': {
             'project.pipelines.AdvertPipeline': 800,
         },
-        'USER_AGENT': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'
+        'USER_AGENT': USER_AGENT
     }
 
     def parse(self, response):
         adverts = response.css('.listing-maxi')
 
-        if adverts:
-            for advert in adverts:
-                link = advert.css('.listing-link::attr(href)')[0].extract()
-                if '/' in link:  # skip the fake listings
-                    human_posted_date = advert.css('.listing-posted-date span::text')[-1].extract()
-                    posted_date = dehumanise_date(human_posted_date)
-                    title = remove_whitespace(advert.css('.listing-title::text')[0].extract())
-
-                    if is_relevant_title(title) and is_valid_posted_date(posted_date):
-                        yield scrapy.Request(
-                            f'{self.BASE_URL}{link}',
-                            callback=self.parse_ad_detail,
-                            meta={
-                                'title': title,
-                                'posted_date': posted_date,
-                            }
-                        )
-        else:
+        if not adverts:
             logging.error("No adverts found (Markup changed?)")
+            return
+
+        for advert in adverts:
+            link = advert.css('.listing-link::attr(href)')[0].extract()
+            if '/' in link:  # skip the fake listings
+                human_posted_date = advert.css('.listing-posted-date span::text')[-1].extract()
+                posted_date = dehumanise_date(human_posted_date)
+                title = remove_whitespace(advert.css('.listing-title::text')[0].extract())
+
+                if is_relevant_title(title) and is_valid_posted_date(posted_date):
+                    yield scrapy.Request(
+                        f'{BASE_URL}{link}',
+                        callback=self.parse_ad_detail,
+                        meta={
+                            'title': title,
+                            'posted_date': posted_date,
+                        }
+                    )
 
     def parse_ad_detail(self, response):
         location = response.css('.ad-location span::text')[0].extract().split(',')[0]
