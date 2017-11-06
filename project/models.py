@@ -1,22 +1,22 @@
-from sqlalchemy import DateTime, Column, Numeric, String
+from sqlalchemy import Boolean, Column, DateTime, Numeric, String
 from sqlalchemy.ext.declarative import declarative_base
 
 
 Base = declarative_base()
 
 
-class Listing(Base):
+class Advert(Base):
 
-    __tablename__ = 'users'
+    __tablename__ = 'Advert'
+
     id = Column(String, primary_key=True, nullable=False)
     title = Column(String, nullable=False)
     description = Column(String)
     price = Column(Numeric)
     location = Column(String)
     posted_date = Column(DateTime)
-    contact_name = Column(String)
-    contact_number = Column(String)
-    contact_email = Column(String)
+    url = Column(String)
+    processed = Column(Boolean)
 
     def __repr__(self):
-        return f"<User(title='{self.title}', price='{self.price}')>"
+        return f"<Advert(title='{self.title}', price='{self.price}')>"
