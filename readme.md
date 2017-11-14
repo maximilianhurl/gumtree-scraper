@@ -7,19 +7,35 @@ Scrape gumtree looking for wardrobes in Brighton and Hove. Send daily reports fo
     python3 -m venv env
     env/bin/pip install -r requirements.txt
 
-## Generating migrations
+## Create databases (Postgresql)
 
-     PYTHONPATH='.' alembic revision --autogenerate -m "Initial migration"
+    createdb gumtree_scraper
+    createdb airflow
+
+## Environment vars
+
+    export DB_URL=postgres://localhost/gumtree_scraper
+    export AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgres://localhost/airflow
+    export PYTHONPATH='.'
+    export AIRFLOW_HOME='.'
+    export MAILGUN_KEY=SUPER-SEKRIT-KEY-HERE
+
+## Generating/running migrations
+
+     alembic revision --autogenerate -m "Initial migration"
      alembic upgrade head
 
 ## Running spider
 
     scrapy runspider project/spider.py
 
+## Airflow
+
+    airflow initdb
+    airflow webserver -p 8080
+    airflow scheduler
+
 ## To Do
 
-- Add airflow that
-    + runs scrapy
-        * set `dag.catchup = False`
-    + generates report afterwards
-    + Error handling task if either fail that returns error logs
+- add docker support
+- deploy to dokku

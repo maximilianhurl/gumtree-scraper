@@ -1,6 +1,6 @@
 from scrapy.exceptions import DropItem
 from project.models import Advert
-from project.settings import create_sqlalchemy_engine
+from project.settings import create_sqlalchemy_engine, commit_session
 import scrapy
 
 
@@ -21,7 +21,7 @@ class AdvertPipeline(object):
         self.session = Session()
 
     def close_spider(self, spider):
-        self.session.commit()
+        commit_session(self.session)
 
     def process_item(self, item, spider):
         if self.session.query(Advert).filter(Advert.id == item['id']).count():

@@ -1,3 +1,5 @@
+airflow==1.8.0
 alembic==0.9.6
 Scrapy==1.4.0
 SQLAlchemy==1.1.15
+psycopg2==2.7.3.2

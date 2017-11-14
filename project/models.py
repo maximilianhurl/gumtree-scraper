@@ -7,7 +7,7 @@ Base = declarative_base()
 
 class Advert(Base):
 
-    __tablename__ = 'Advert'
+    __tablename__ = 'advert'
 
     id = Column(String, primary_key=True, nullable=False)
     title = Column(String, nullable=False)
